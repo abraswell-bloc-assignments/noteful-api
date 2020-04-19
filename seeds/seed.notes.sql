@@ -1,6 +1,6 @@
   -- psql -U postgres -d noteful -f ./seeds/seed.notes.sql
 
-INSERT INTO notes (name, content, folderId)
+INSERT INTO notes (name, content, folderid)
 VALUES
 
 

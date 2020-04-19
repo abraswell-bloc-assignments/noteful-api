@@ -37,9 +37,6 @@ app.use(function errorHandler(error, req, res, next) {
        if (NODE_ENV === 'production') {
          response = { error: { message: 'server error' } }
        } else {
-         // Change to logger error
-         // eslint-disable-next-line no-console
-         console.error(error)
          response = { message: error.message, error }
        }
        res.status(500).json(response)

@@ -36,6 +36,9 @@
     "postgrator-cli": "^3.2.0",
     "supertest": "^4.0.2"
   },
+  "engines": {
+    "node": "13.12.0"
+  },
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true

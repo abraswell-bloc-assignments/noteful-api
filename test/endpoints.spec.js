@@ -85,12 +85,12 @@ describe('Folders Endpoints', function(){
 
     })
 
-    describe(`GET /api/folders/:folderId`, () => {
+    describe(`GET /api/folders/:folderid`, () => {
         context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-                const folderId = 123456
+                const folderid = 123456
                 return supertest(app)
-                    .get(`/api/folders/${folderId}`)
+                    .get(`/api/folders/${folderid}`)
                     .expect(404, {error: {message:`Folder doesn't exist`} })
             })
         })
@@ -110,11 +110,11 @@ describe('Folders Endpoints', function(){
                 })
             })
 
-            it('GET /api/folders/:folderId responds with 200 and the specified folder', () => {
-            const folderId = 2
-            const expectedFolder = testFolders[folderId - 1]
+            it('GET /api/folders/:folderid responds with 200 and the specified folder', () => {
+            const folderid = 2
+            const expectedFolder = testFolders[folderid - 1]
             return supertest(app)
-                .get(`/api/folders/${folderId}`)
+                .get(`/api/folders/${folderid}`)
                 .expect(200, expectedFolder) 
                 })
             })
@@ -201,12 +201,12 @@ describe('Folders Endpoints', function(){
             })
     })
 
-    describe(`DELETE /api/folders/:folderId`, () => {
+    describe(`DELETE /api/folders/:folderid`, () => {
        context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-            const folderId = 123456
+            const folderid = 123456
             return supertest(app)
-                .delete(`/api/folders/${folderId}`)
+                .delete(`/api/folders/${folderid}`)
                 .expect(404, { error: { message: `Folder doesn't exist` } })
             })
         })
@@ -243,12 +243,12 @@ describe('Folders Endpoints', function(){
         })
     })
 
-    describe(`PATCH /api/folders/:folderId`, () => {
+    describe(`PATCH /api/folders/:folderid`, () => {
         context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-                const folderId = 123456
+                const folderid = 123456
                 return supertest(app)
-                    .patch(`/api/folders/${folderId}`)
+                    .patch(`/api/folders/${folderid}`)
                     .expect(404, { error: { message: `Folder doesn't exist`}})
             })
         })

@@ -49,11 +49,11 @@ foldersRouter
   })
 
 foldersRouter
-  .route('/:folderId')
+  .route('/:folderid')
   .all((req, res, next) => {
     FoldersService.getById(
       req.app.get('db'),
-      req.params.folderId
+      req.params.folderid
     )
       .then(folder => {
         if (!folder) {
@@ -73,7 +73,7 @@ foldersRouter
   .delete((req, res, next) => {
     FoldersService.deleteFolder(
       req.app.get('db'),
-      req.params.folderId
+      req.params.folderid
     )
       // eslint-disable-next-line no-unused-vars
       .then(numRowsAffected => {
@@ -95,7 +95,7 @@ foldersRouter
 
     FoldersService.updateFolder(
       req.app.get('db'),
-      req.params.folderId,
+      req.params.folderid,
       folderToUpdate
     )
       // eslint-disable-next-line no-unused-vars
