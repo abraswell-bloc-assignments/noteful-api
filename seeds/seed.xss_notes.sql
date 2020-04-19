@@ -1,6 +1,6 @@
--- psql -U postgres -d noteful -f ./seeds/seed.xss_note.sql
+-- psql -U postgres -d noteful -f ./seeds/seed.xss_notes.sql
 
-INSERT INTO notes (name, content, folder_id)
+INSERT INTO notes (name, content, folderId)
 
 VALUES 
 (

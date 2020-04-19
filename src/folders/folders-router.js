@@ -12,46 +12,48 @@ const serializeFolder = folder => ({
 })
 
 foldersRouter
-    .route('/')
+  .route('/')
 
-    .get((req, res, next) => {
-      const knexInstance = req.app.get('db')
-      FoldersService.getAllFolders(knexInstance)
-        .then(folders => {
-          res.json(folders.map(serializeFolder))
-        })
-        .catch(next)
-    })
-
-    .post(jsonParser, (req, res, next) => {
-    const { name } = req.body
-    const newFolder = { name }
-
-    for (const [key, value] of Object.entries(newFolder))
-      if (value == null)
-        return res.status(400).json({
-          error: { message: `Missing '${key}' in request body` }
-        })
-
-    FoldersService.insertFolder(
-      req.app.get('db'),
-      newFolder
-    )
-      .then(folder => {
-        res
-          .status(201)
-          .location(path.posix.join(req.originalUrl, `/${folder.id}`))
-          .json(serializeFolder(folder))
+  .get((req, res, next) => {
+    const knexInstance = req.app.get('db')
+    FoldersService.getAllFolders(knexInstance)
+      .then(folders => {
+        res.json(folders.map(serializeFolder))
       })
       .catch(next)
   })
 
 foldersRouter
-  .route('/:folder_id')
+  .route('/add-folder')
+  .post(jsonParser, (req, res, next) => {
+  const { name } = req.body
+  const newFolder = { name }
+
+  for (const [key, value] of Object.entries(newFolder))
+    if (value == null)
+      return res.status(400).json({
+        error: { message: `Missing '${key}' in request body` }
+      })
+
+  FoldersService.insertFolder(
+    req.app.get('db'),
+    newFolder
+  )
+    .then(folder => {
+      res
+        .status(201)
+        .location(path.posix.join(req.originalUrl, `/${folder.id}`))
+        .json(serializeFolder(folder))
+    })
+    .catch(next)
+  })
+
+foldersRouter
+  .route('/:folderId')
   .all((req, res, next) => {
     FoldersService.getById(
       req.app.get('db'),
-      req.params.folder_id
+      req.params.folderId
     )
       .then(folder => {
         if (!folder) {
@@ -71,7 +73,7 @@ foldersRouter
   .delete((req, res, next) => {
     FoldersService.deleteFolder(
       req.app.get('db'),
-      req.params.folder_id
+      req.params.folderId
     )
       // eslint-disable-next-line no-unused-vars
       .then(numRowsAffected => {
@@ -93,7 +95,7 @@ foldersRouter
 
     FoldersService.updateFolder(
       req.app.get('db'),
-      req.params.folder_id,
+      req.params.folderId,
       folderToUpdate
     )
       // eslint-disable-next-line no-unused-vars

@@ -2,15 +2,15 @@
 function makeFoldersArray() {
   return [
     {
-      "id": "Fixture-Folder-1",
+      "id": 1,
       "name": "Important Fixture"
     },
     {
-      "id": "Fixture-Folder-2",
+      "id": 2,
       "name": "Super Fixture"
     },
     {
-      "id": "Fixture-Folder-3",
+      "id": 3,
       "name": "Spangley Fixture"
     }
   ]   

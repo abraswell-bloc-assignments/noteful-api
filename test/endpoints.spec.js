@@ -1,11 +1,6 @@
 /* eslint-disable no-undef */
-// MAKE SURE TO CREATE TABLE THROUGH MIGRATIONS IN THE TEST DATABASE!!!
-// RUN psql -U postgres -d connectivity-test -f ./migrations/001.do.create_posts_table.sql
-// DON'T SEED THE TEST DATABASE --- FOLDERS.FIXTURES.JS WILL PROVIDE TESTING DATA
 
-// MAKE SURE TO ADD TO .env   TEST_DB_URL="postgresql://db-owner@localhost/db-name-test"
-
-// USE .only TO RUN ONE TEST SUITE AT A TIME TO START UPDATING TO PROJECT SPECIFICS
+// psql -U postgres -d noteful-test -f ./migrations/002.do.create_notes_table.sql
 
 const knex = require('knex')
 const app = require('../src/app')
@@ -46,12 +41,12 @@ describe('Folders Endpoints', function(){
     
             beforeEach('insert folders', () => {
                 return db
-                .into('notes')
-                .insert(testNotes)
+                .into('folders')
+                .insert(testFolders)
                 .then(() => {
                   return db
-                    .into('folders')
-                    .insert(testFolders)
+                    .into('notes')
+                    .insert(testNotes)
                 })
             })
     
@@ -63,13 +58,13 @@ describe('Folders Endpoints', function(){
         })
 
         context(`Given an XSS attack folder`, () => {
-            const testNotes = makeNotesArray()
+            const testFolders = makeFoldersArray()
             const { maliciousFolder, expectedFolder } = makeMaliciousFolder()
       
             beforeEach('insert malicious folder', () => {
                 return db
-                .into('notes')
-                .insert(testNotes)
+                .into('folders')
+                .insert(testFolders)
                 .then(() => {
                   return db
                     .into('folders')
@@ -90,12 +85,12 @@ describe('Folders Endpoints', function(){
 
     })
 
-    describe(`GET /api/folders/:folder_id`, () => {
+    describe(`GET /api/folders/:folderId`, () => {
         context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-                const folder_id = 123456
+                const folderId = 123456
                 return supertest(app)
-                    .get(`/api/folders/${folder_id}`)
+                    .get(`/api/folders/${folderId}`)
                     .expect(404, {error: {message:`Folder doesn't exist`} })
             })
         })
@@ -106,32 +101,32 @@ describe('Folders Endpoints', function(){
 
             beforeEach('insert folders', () => {
                 return db
-                .into('notes')
-                .insert(testNotes)
+                .into('folders')
+                .insert(testFolders)
                 .then(() => {
                   return db
-                    .into('folders')
-                    .insert(testFolders)
+                    .into('notes')
+                    .insert(testNotes)
                 })
             })
 
-            it('GET /api/folders/:folder_id responds with 200 and the specified folder', () => {
-            const folder_id = 2
-            const expectedFolder = testFolders[folder_id - 1]
+            it('GET /api/folders/:folderId responds with 200 and the specified folder', () => {
+            const folderId = 2
+            const expectedFolder = testFolders[folderId - 1]
             return supertest(app)
-                .get(`/api/folders/${folder_id}`)
+                .get(`/api/folders/${folderId}`)
                 .expect(200, expectedFolder) 
                 })
             })
 
         context(`Given an XSS attack folder`, () => {
-            const testNotes = makeNotesArray()
+            const testFolders = makeFoldersArray()
             const { maliciousFolder, expectedFolder } = makeMaliciousFolder()
-
+      
             beforeEach('insert malicious folder', () => {
                 return db
-                .into('notes')
-                .insert(testNotes)
+                .into('folders')
+                .insert(testFolders)
                 .then(() => {
                   return db
                     .into('folders')
@@ -152,29 +147,20 @@ describe('Folders Endpoints', function(){
     })
 
     describe(`POST /api/folders`, () => {
-            // this might occasionally return a false fail because of newDate()
-            // if test runs towards the end of a millisecond, then the seconds will be different
-            // we can use .retries here to resolve this .. statistically speaking, it shouldn't fail three times in a row...
-        it(`creates an folder, responding with 201 and the new folder`, function() {
+           
+        it(`creates a folder, responding with 201 and the new folder`, function() {
             this.retries(3)
             const newFolder = {
-                title: 'Test new folder',
-                style: 'Listicle',
-                content: 'Test new folder content...'
+                name: 'New Test Folder'
             }
             return supertest(app)
             .post('/api/folders')
             .send(newFolder)
             .expect(201)
             .expect(res => {
-                expect(res.body.title).to.eql(newFolder.title)
-                expect(res.body.style).to.eql(newFolder.style)
-                expect(res.body.content).to.eql(newFolder.content)
+                expect(res.body.name).to.eql(newFolder.name)
                 expect(res.body).to.have.property('id')
                 expect(res.headers.location).to.eql(`/api/folders/${res.body.id}`)
-                const expected = new Date().toLocaleString()
-                const actual = new Date(res.body.date_published).toLocaleString()
-                expect(actual).to.eql(expected)
             })
             .then(postRes =>
                 supertest(app)
@@ -215,12 +201,12 @@ describe('Folders Endpoints', function(){
             })
     })
 
-    describe(`DELETE /api/folders/:folder_id`, () => {
+    describe(`DELETE /api/folders/:folderId`, () => {
        context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-            const folder_id = 123456
+            const folderId = 123456
             return supertest(app)
-                .delete(`/api/folders/${folder_id}`)
+                .delete(`/api/folders/${folderId}`)
                 .expect(404, { error: { message: `Folder doesn't exist` } })
             })
         })
@@ -230,16 +216,16 @@ describe('Folders Endpoints', function(){
             const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
         
-        beforeEach('insert folders', () => {
-            return db
-            .into('notes')
-            .insert(testNotes)
-            .then(() => {
-              return db
+            beforeEach('insert folders', () => {
+                return db
                 .into('folders')
-                .insert(testNotes)
+                .insert(testFolders)
+                .then(() => {
+                  return db
+                    .into('notes')
+                    .insert(testNotes)
+                })
             })
-        })
         
         it('responds with 204 and removes the folder', () => {
             const idToRemove = 2
@@ -257,12 +243,12 @@ describe('Folders Endpoints', function(){
         })
     })
 
-    describe(`PATCH /api/folders/:folder_id`, () => {
+    describe(`PATCH /api/folders/:folderId`, () => {
         context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-                const folder_id = 123456
+                const folderId = 123456
                 return supertest(app)
-                    .patch(`/api/folders/${folder_id}`)
+                    .patch(`/api/folders/${folderId}`)
                     .expect(404, { error: { message: `Folder doesn't exist`}})
             })
         })
@@ -273,21 +259,20 @@ describe('Folders Endpoints', function(){
 
             beforeEach('insert folders', () => {
                 return db
-                .into('notes')
-                .insert(testNotes)
+                .into('folders')
+                .insert(testFolders)
                 .then(() => {
                   return db
-                    .into('folders')
-                    .insert(testFolders)
+                    .into('notes')
+                    .insert(testNotes)
                 })
             })
+
 
             it('responds with 204 and updates the folder', () => {
                 const idToUpdate = 2
                 const updateFolder = {
-                    title: 'updated folder title',
-                    style: 'Interview',
-                    content: 'updated folder content',    
+                    name: 'Test new folder'    
                 }
                 const expectedFolder = {
                     ...testFolders[idToUpdate - 1],
@@ -312,34 +297,11 @@ describe('Folders Endpoints', function(){
                     .send({ irrelevantField: 'foo' })
                     .expect(400, {
                         error: {
-                            message: `Request body must contain 'body'` 
+                            message: `Request body must contain 'name'` 
                         }
                 })
             })
 
-            it(`responds with 204 when updating only a subset of fields`, () => {
-                    const idToUpdate = 2
-                    const updateFolder = {
-                      title: 'updated folder title',
-                    }
-                    const expectedFolder = {
-                      ...testFolders[idToUpdate - 1],
-                      ...updateFolder
-                    }
-                    return supertest(app)
-                      .patch(`/api/folders/${idToUpdate}`)
-                      .send({
-                        ...updateFolder,
-                        fieldToIgnore: 'should not be in GET response'
-                      })
-                      .expect(204)
-                      // eslint-disable-next-line no-unused-vars
-                      .then(res =>
-                        supertest(app)
-                          .get(`/api/folders/${idToUpdate}`)
-                          .expect(expectedFolder)
-                      )
-            })
         })
 
     })

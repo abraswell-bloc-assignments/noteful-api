@@ -11,7 +11,7 @@ const serializeNote = note => ({
   name: xss(note.name),
   modified: note.modified,
   content: xss(note.content),
-  folder_id: note.folder_id,
+  folderId: note.folderId,
 })
 
 notesRouter
@@ -24,9 +24,12 @@ notesRouter
       })
       .catch(next)
   })
+
+notesRouter
+  .route('/add-note')
   .post(jsonParser, (req, res, next) => {
-    const { name, content, folder_id } = req.body
-    const newNote = { name, content, folder_id }
+    const { name, content, folderId } = req.body
+    const newNote = { name, content, folderId }
 
     for (const [key, value] of Object.entries(newNote)) {
       if (value == null) {
@@ -48,6 +51,8 @@ notesRouter
       })
       .catch(next)
   })
+
+  
 
 notesRouter
   .route('/:note_id')
@@ -81,14 +86,14 @@ notesRouter
       .catch(next)
   })
   .patch(jsonParser, (req, res, next) => {
-    const { name, content, folder_id } = req.body
-    const noteToUpdate = { name, content, folder_id }
+    const { name, content, folderId } = req.body
+    const noteToUpdate = { name, content, folderId }
 
     const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: `Request body must contain either 'name', 'content', or 'folder_id'`
+          message: `Request body must contain either 'name', 'content', or 'folderId'`
         }
       })
 
