@@ -154,13 +154,13 @@ describe('Folders Endpoints', function(){
                 name: 'New Test Folder'
             }
             return supertest(app)
-            .post('/api/folders')
+            .post('/api/folders/add-folder')
             .send(newFolder)
             .expect(201)
             .expect(res => {
                 expect(res.body.name).to.eql(newFolder.name)
                 expect(res.body).to.have.property('id')
-                expect(res.headers.location).to.eql(`/api/folders/${res.body.id}`)
+                expect(res.headers.location).to.eql(`/api/folders/add-folder/${res.body.id}`)
             })
             .then(postRes =>
                 supertest(app)
@@ -180,7 +180,7 @@ describe('Folders Endpoints', function(){
                 delete newFolder[field]
 
                 return supertest(app)
-                .post('/api/folders')
+                .post('/api/folders/add-folder')
                 .send(newFolder)
                 .expect(400, {
                     error: { message: `Missing '${field}' in request body` }
@@ -191,7 +191,7 @@ describe('Folders Endpoints', function(){
             it('removes XSS attack content from response', () => {
                 const { maliciousFolder, expectedFolder } = makeMaliciousFolder()
                 return supertest(app)
-                .post(`/api/folders`)
+                .post(`/api/folders/add-folder`)
                 .send(maliciousFolder)
                 .expect(201)
                 .expect(res => {
@@ -227,19 +227,19 @@ describe('Folders Endpoints', function(){
                 })
             })
         
-        it('responds with 204 and removes the folder', () => {
-            const idToRemove = 2
-            const expectedFolders = testFolders.filter(folder => folder.id !== idToRemove)
-            return supertest(app)
-              .delete(`/api/folders/${idToRemove}`)
-              .expect(204)
-              // eslint-disable-next-line no-unused-vars
-              .then(res =>
-                supertest(app)
-                  .get(`/api/folders`)
-                  .expect(expectedFolders)
-              )
-          })
+        //     it('responds with 204 and removes the post', () => {
+        //         const idToRemove = 2
+        //         const expectedFolders = testFolders.filter(folder => folder.id !== idToRemove)
+        //         return supertest(app)
+        //           .delete(`/api/folders/${idToRemove}`)
+        //           .expect(204)
+        //           // eslint-disable-next-line no-unused-vars
+        //           .then(res =>
+        //             supertest(app)
+        //               .get(`/api/folders`)
+        //               .expect(expectedFolders)
+        //       )
+        //   })
         })
     })
 

@@ -7,7 +7,7 @@ const foldersRouter = express.Router()
 const jsonParser = express.json()
 
 const serializeFolder = folder => ({
-  id: folder.id,
+  id: folder.id.toString(),
   name: xss(folder.name)
 })
 
@@ -23,29 +23,31 @@ foldersRouter
       .catch(next)
   })
 
+
 foldersRouter
   .route('/add-folder')
+  
   .post(jsonParser, (req, res, next) => {
-  const { name } = req.body
-  const newFolder = { name }
+    const { name } = req.body
+    const newFolder = { name }
 
-  for (const [key, value] of Object.entries(newFolder))
-    if (value == null)
-      return res.status(400).json({
-        error: { message: `Missing '${key}' in request body` }
+    for (const [key, value] of Object.entries(newFolder))
+      if (value == null)
+        return res.status(400).json({
+          error: { message: `Missing '${key}' in request body` }
+        })
+    
+    FoldersService.insertFolder(
+      req.app.get('db'),
+      newFolder
+    )
+      .then(folder => {
+        res
+          .status(201)
+          .location(path.posix.join(req.originalUrl, `/${folder.id}`))
+          .json(serializeFolder(folder))
       })
-
-  FoldersService.insertFolder(
-    req.app.get('db'),
-    newFolder
-  )
-    .then(folder => {
-      res
-        .status(201)
-        .location(path.posix.join(req.originalUrl, `/${folder.id}`))
-        .json(serializeFolder(folder))
-    })
-    .catch(next)
+      .catch(next)
   })
 
 foldersRouter

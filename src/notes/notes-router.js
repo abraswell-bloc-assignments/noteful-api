@@ -7,11 +7,11 @@ const notesRouter = express.Router()
 const jsonParser = express.json()
 
 const serializeNote = note => ({
-  id: note.id,
+  id: note.id.toString(),
   name: xss(note.name),
   modified: note.modified,
   content: xss(note.content),
-  folderid: note.folderid,
+  folderid: note.folderid.toString(),
 })
 
 notesRouter
@@ -26,7 +26,7 @@ notesRouter
   })
 
 notesRouter
-  .route('/')
+  .route('/add-note')
   .post(jsonParser, (req, res, next) => {
     const { name, content, folderid } = req.body
     const newNote = { name, content, folderid }
