@@ -5,7 +5,6 @@
 const knex = require('knex')
 const app = require('../src/app')
 const {makeFoldersArray} = require('./folders.fixtures')
-const {makeNotesArray} = require('./notes.fixtures')
 const {makeMaliciousFolder} = require('./folders.fixtures')
 
 
@@ -36,18 +35,12 @@ describe('Folders Endpoints', function(){
         })
 
         context('Given there are folders in the database', () => {
-            const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
     
             beforeEach('insert folders', () => {
                 return db
                 .into('folders')
                 .insert(testFolders)
-                .then(() => {
-                  return db
-                    .into('notes')
-                    .insert(testNotes)
-                })
             })
     
             it('GET /api/folders responds with 200 and all of the folders', () => {
@@ -96,18 +89,12 @@ describe('Folders Endpoints', function(){
         })
         
         context('Given there are folders in the database', () => {
-            const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
 
             beforeEach('insert folders', () => {
                 return db
                 .into('folders')
                 .insert(testFolders)
-                .then(() => {
-                  return db
-                    .into('notes')
-                    .insert(testNotes)
-                })
             })
 
             it('GET /api/folders/:folderid responds with 200 and the specified folder', () => {
@@ -139,7 +126,7 @@ describe('Folders Endpoints', function(){
                 .get(`/api/folders/${maliciousFolder.id}`)
                 .expect(200)
                 .expect(res => {
-                  expect(res.body.title).to.eql(expectedFolder.title)
+                  expect(res.body.name).to.eql(expectedFolder.name)
                   expect(res.body.content).to.eql(expectedFolder.content)
                 })
             })
@@ -151,7 +138,7 @@ describe('Folders Endpoints', function(){
         it(`creates a folder, responding with 201 and the new folder`, function() {
             this.retries(3)
             const newFolder = {
-                name: 'New Test Folder'
+                "name": "New Folder"
             }
             return supertest(app)
             .post('/api/folders/add-folder')
@@ -212,20 +199,14 @@ describe('Folders Endpoints', function(){
         })
         
         
-        context('Given there are folders in the database', () => {
-            const testNotes = makeNotesArray()
-            const testFolders = makeFoldersArray()
+        // context('Given there are folders in the database', () => {
+        //     const testFolders = makeFoldersArray()
         
-            beforeEach('insert folders', () => {
-                return db
-                .into('folders')
-                .insert(testFolders)
-                .then(() => {
-                  return db
-                    .into('notes')
-                    .insert(testNotes)
-                })
-            })
+        //     beforeEach('insert folders', () => {
+        //         return db
+        //         .into('folders')
+        //         .insert(testFolders)
+        //     })
         
         //     it('responds with 204 and removes the post', () => {
         //         const idToRemove = 2
@@ -240,7 +221,7 @@ describe('Folders Endpoints', function(){
         //               .expect(expectedFolders)
         //       )
         //   })
-        })
+        // })
     })
 
     describe(`PATCH /api/folders/:folderid`, () => {
@@ -254,18 +235,12 @@ describe('Folders Endpoints', function(){
         })
 
         context('Given there are folders in the database', () => {
-            const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
 
             beforeEach('insert folders', () => {
                 return db
                 .into('folders')
                 .insert(testFolders)
-                .then(() => {
-                  return db
-                    .into('notes')
-                    .insert(testNotes)
-                })
             })
 
 
