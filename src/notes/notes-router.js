@@ -85,6 +85,26 @@ notesRouter
       })
       .catch(next)
   })
+  
+
+  notesRouter
+  .route('/edit-note/:note_id')
+  .all((req, res, next) => {
+    NotesService.getById(
+      req.app.get('db'),
+      req.params.note_id
+    )
+      .then(note => {
+        if (!note) {
+          return res.status(404).json({
+            error: { message: `Note doesn't exist` }
+          })
+        }
+        res.note = note
+        next()
+      })
+      .catch(next)
+  })
   .patch(jsonParser, (req, res, next) => {
     const { name, content, folderid } = req.body
     const noteToUpdate = { name, content, folderid }
@@ -107,5 +127,5 @@ notesRouter
       })
       .catch(next)
   })
-
+  
 module.exports = notesRouter

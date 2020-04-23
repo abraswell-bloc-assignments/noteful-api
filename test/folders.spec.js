@@ -199,29 +199,29 @@ describe('Folders Endpoints', function(){
         })
         
         
-        // context('Given there are folders in the database', () => {
-        //     const testFolders = makeFoldersArray()
+        context('Given there are folders in the database', () => {
+            const testFolders = makeFoldersArray()
         
-        //     beforeEach('insert folders', () => {
-        //         return db
-        //         .into('folders')
-        //         .insert(testFolders)
-        //     })
+            beforeEach('insert folders', () => {
+                return db
+                .into('folders')
+                .insert(testFolders)
+            })
         
-        //     it('responds with 204 and removes the post', () => {
-        //         const idToRemove = 2
-        //         const expectedFolders = testFolders.filter(folder => folder.id !== idToRemove)
-        //         return supertest(app)
-        //           .delete(`/api/folders/${idToRemove}`)
-        //           .expect(204)
-        //           // eslint-disable-next-line no-unused-vars
-        //           .then(res =>
-        //             supertest(app)
-        //               .get(`/api/folders`)
-        //               .expect(expectedFolders)
-        //       )
-        //   })
-        // })
+            it('responds with 204 and removes the post', () => {
+                const idToRemove = 2
+                const expectedFolders = testFolders.filter(folder => folder.id !== idToRemove)
+                return supertest(app)
+                  .delete(`/api/folders/${idToRemove}`)
+                  .expect(204)
+                  // eslint-disable-next-line no-unused-vars
+                  .then(res =>
+                    supertest(app)
+                      .get(`/api/folders`)
+                      .expect(expectedFolders)
+              )
+          })
+        })
     })
 
     describe(`PATCH /api/folders/:folderid`, () => {
