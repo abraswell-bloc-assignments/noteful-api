@@ -210,21 +210,22 @@ describe('Folders Endpoints', function(){
         
             it('responds with 204 and removes the post', () => {
                 const idToRemove = 2
-                const expectedFolders = testFolders.filter(folder => folder.id !== idToRemove)
+                const expectedFolders = testFolders.filter(folder => folder.id != idToRemove)
+
                 return supertest(app)
                   .delete(`/api/folders/${idToRemove}`)
                   .expect(204)
-                  // eslint-disable-next-line no-unused-vars
-                  .then(res =>
+                //   eslint-disable-next-line no-unused-vars
+                  .then(res=>
                     supertest(app)
                       .get(`/api/folders`)
                       .expect(expectedFolders)
-              )
+                  )   
+
+  
           })
         })
     })
-
-    
 })
 
 

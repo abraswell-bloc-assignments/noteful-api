@@ -74,8 +74,8 @@ describe('Notes Endpoints', function(){
                 .get(`/api/notes`)
                 .expect(200)
                 .expect(res => {
-                  expect(res.body[0].name).to.eql(expectedNote.name)
-                  expect(res.body[0].content).to.eql(expectedNote.content)
+                  expect(res.body[0].name).to.equal(expectedNote.name)
+                  expect(res.body[0].content).to.equal(expectedNote.content)
                 })
             })
         })
@@ -142,21 +142,26 @@ describe('Notes Endpoints', function(){
                 .get(`/api/notes/${maliciousNote.id}`)
                 .expect(200)
                 .expect(res => {
-                  expect(res.body.name).to.eql(expectedNote.name)
-                  expect(res.body.content).to.eql(expectedNote.content)
+                  expect(res.body.name).to.equal(expectedNote.name)
+                  expect(res.body.content).to.equal(expectedNote.content)
                 })
             })
         })    
     })
 
     describe(`POST /api/notes/add-note`, () => {
+
+        const testFolders = makeFoldersArray();
+        beforeEach('insert malicious article', () => {
+          return db
+            .into('folders')
+            .insert(testFolders)
+        })
            
-        it(`creates a note, responding with 201 and the new note`, function() {
+        it(`creates a note, responding with 201 and the new note`, function() {     
             this.retries(3)
             const newNote = {
-                "id": "808",
-                "name": "Test new note",
-                "modified": "2018-08-15T23:00:00.000Z",
+                "name": "Test",
                 "content": "The contents of newNote",
                 "folderid": "1"
             }
@@ -165,12 +170,12 @@ describe('Notes Endpoints', function(){
             .send(newNote)
             .expect(201)
             .expect(res => {
-                expect(res.body.name).to.eql(newNote.name)
-                expect(res.body.content).to.eql(newNote.content)
+                expect(res.body.name).to.equal(newNote.name)
+                expect(res.body.content).to.equal(newNote.content)
                 expect(res.body).to.have.property('id')
                 expect(res.body).to.have.property('modified')
-                expect(res.headers.location).to.eql(`/api/notes/add-note/${res.body.id}`)
                 expect(res.body).to.have.property('folderid')
+                expect(res.headers.location).to.equal(`/api/notes/add-note/${res.body.id}`)
             })
             .then(postRes =>
                 supertest(app)
@@ -207,24 +212,24 @@ describe('Notes Endpoints', function(){
                 .send(maliciousNote)
                 .expect(201)
                 .expect(res => {
-                    expect(res.body.name).to.eql(expectedFolder.name)
-                    expect(res.body.content).to.eql(expectedNote.content)
+                    expect(res.body.name).to.equal(expectedNote.name)
+                    expect(res.body.content).to.equal(expectedNote.content)
                 })
             })
     })
 
-    describe(`DELETE /api/folders/:folderid`, () => {
-       context(`Given no folders`, () => {
+    describe(`DELETE /api/notes/:noteid`, () => {
+       context(`Given no notes`, () => {
             it(`responds with 404`, () => {
-            const folderid = 1234
+            const noteid = 123456
             return supertest(app)
-                .delete(`/api/folders/${folderid}`)
-                .expect(404, { error: { message: `Folder doesn't exist` } })
+                .delete(`/api/notes/${noteid}`)
+                .expect(404, { error: { message: `Note doesn't exist` } })
             })
         })
         
         
-        context('Given there are notess in the database', () => {
+        context('Given there are notes in the database', () => {
             const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
         
@@ -241,7 +246,7 @@ describe('Notes Endpoints', function(){
         
             it('responds with 204 and removes the note', () => {
                 const idToRemove = 2
-                const expectedNotes = testNotes.filter(note => note.id !== idToRemove)
+                const expectedNotes = testNotes.filter(note => note.id != idToRemove)
                 return supertest(app)
                   .delete(`/api/notes/${idToRemove}`)
                   .expect(204)
