@@ -106,25 +106,15 @@ notesRouter
       .catch(next)
   })
   .patch(jsonParser, (req, res, next) => {
-
-    const editedName = Object.values(name).filter(Boolean).length
-    if (name > 0) {
-      name = editedName
-    }
-
-    const editedContent = Object.values(content).filter(Boolean).length
-    if (content > 0) {
-      content = editedContent
-    }
     
-    let { name, content } = req.body
-    const noteToUpdate = { name, content }
+    const { name, content, folderid } = req.body
+    const noteToUpdate = { name, content, folderid }
 
     const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: `Request body must contain either 'name' or 'content'`
+          message: `Request body must contain either 'name', 'content', or 'folderid'`
         }
       })
 
