@@ -153,30 +153,30 @@ describe('Notes Endpoints', function(){
 
     describe(`POST /api/notes/add-note`, () => {
            
-        // it(`creates a note, responding with 201 and the new note`, function() {
-        //     this.retries(3)
-        //     const newNote = {
-        //         'name': 'Test new note',
-        //         'content': 'The contents of newNote',
-        //         'folderid': '1'
-        //     }
-        //     return supertest(app)
-        //     .post('/api/notes/add-note')
-        //     .send(newNote)
-        //     .expect(201)
-        //     .expect(res => {
-        //         expect(res.body.name).to.eql(newNote.name)
-        //         // expect(res.body.content).to.eql(newNote.content)
-        //         expect(res.body).to.have.property('id')
-        //         expect(res.headers.location).to.eql(`/api/notes/add-note/${res.body.id}`)
-        //         // expect(res.body).to.have.property('folderid')
-        //     })
-        //     .then(postRes =>
-        //         supertest(app)
-        //         .get(`/api/notes/${postRes.body.id}`)
-        //         .expect(postRes.body)
-        //     )
-        // })
+        it(`creates a note, responding with 201 and the new note`, function() {
+            this.retries(3)
+            const newNote = {
+                'name': 'Test new note',
+                'content': 'The contents of newNote',
+                'folderid': '1'
+            }
+            return supertest(app)
+            .post('/api/notes/add-note')
+            .send(newNote)
+            .expect(201)
+            .expect(res => {
+                expect(res.body.name).to.eql(newNote.name)
+                // expect(res.body.content).to.eql(newNote.content)
+                expect(res.body).to.have.property('id')
+                expect(res.headers.location).to.eql(`/api/notes/add-note/${res.body.id}`)
+                // expect(res.body).to.have.property('folderid')
+            })
+            .then(postRes =>
+                supertest(app)
+                .get(`/api/notes/${postRes.body.id}`)
+                .expect(postRes.body)
+            )
+        })
 
         const requiredFields = [ 'name', 'content', 'folderid' ]
 
@@ -223,51 +223,10 @@ describe('Notes Endpoints', function(){
         })
         
         
-        // context('Given there are folders in the database', () => {
-        //     const testNotes = makeNotesArray()
-        //     const testFolders = makeFoldersArray()
-        
-        //     beforeEach('insert folders', () => {
-        //         return db
-        //         .into('folders')
-        //         .insert(testFolders)
-        //         .then(() => {
-        //           return db
-        //             .into('notes')
-        //             .insert(testNotes)
-        //         })
-        //     })
-        
-        //     it('responds with 204 and removes the note', () => {
-        //         const idToRemove = 2
-        //         const expectedNotes = testNotes.filter(note => note.id !== idToRemove)
-        //         return supertest(app)
-        //           .delete(`/api/notes/${idToRemove}`)
-        //           .expect(204)
-        //           // eslint-disable-next-line no-unused-vars
-        //           .then(res =>
-        //             supertest(app)
-        //               .get(`/api/notes`)
-        //               .expect(expectedNotes)
-        //       )
-        //   })
-        // })
-    })
-
-    describe(`PATCH /api/folders/:folderid`, () => {
-        context(`Given no folders`, () => {
-            it(`responds with 404`, () => {
-                const folderid = 123456
-                return supertest(app)
-                    .patch(`/api/folders/${folderid}`)
-                    .expect(404, { error: { message: `Folder doesn't exist`}})
-            })
-        })
-
         context('Given there are folders in the database', () => {
             const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
-
+        
             beforeEach('insert folders', () => {
                 return db
                 .into('folders')
@@ -278,44 +237,24 @@ describe('Notes Endpoints', function(){
                     .insert(testNotes)
                 })
             })
-
-
-            it('responds with 204 and updates the folder', () => {
-                const idToUpdate = 2
-                const updateFolder = {
-                    name: 'Test new folder'    
-                }
-                const expectedFolder = {
-                    ...testFolders[idToUpdate - 1],
-                    ...updateFolder
-                }
+        
+            it('responds with 204 and removes the note', () => {
+                const idToRemove = 2
+                const expectedNotes = testNotes.filter(note => note.id !== idToRemove)
                 return supertest(app)
-                    .patch(`/api/folders/${idToUpdate}`)
-                    .send(updateFolder)
-                    .expect(204)
-                    // eslint-disable-next-line no-unused-vars
-                    .then(res =>
-                        supertest(app)
-                            .get(`/api/folders/${idToUpdate}`)
-                            .expect(expectedFolder)
-                    )
-            })
-
-            it(`responds with 400 when no required fields supplied`, () => {
-                const idToUpdate = 2
-                return supertest(app)
-                    .patch(`/api/folders/${idToUpdate}`)
-                    .send({ irrelevantField: 'foo' })
-                    .expect(400, {
-                        error: {
-                            message: `Request body must contain 'name'` 
-                        }
-                })
-            })
-
+                  .delete(`/api/notes/${idToRemove}`)
+                  .expect(204)
+                  // eslint-disable-next-line no-unused-vars
+                  .then(res =>
+                    supertest(app)
+                      .get(`/api/notes`)
+                      .expect(expectedNotes)
+              )
+          })
         })
-
     })
+
+    
 })
 
 
