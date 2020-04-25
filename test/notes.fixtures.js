@@ -50,15 +50,13 @@ function makeNotesArray() {
 
   function makeMaliciousNote() {
 
-    // const serializeNote = maliciousNote => ({
-    //   id: maliciousNote.id.toString(),
-    //   name: xss(maliciousNote.name),
-    //   modified: maliciousNote.modified,
-    //   content: xss(maliciousNote.content),
-    //   folderid: maliciousNote.folderid.toString(),
-    // })
-
-    // serializeNote()
+    const serializeNote = (maliciousNote) => ({
+      id: maliciousNote.id.toString(),
+      name: xss(maliciousNote.name),
+      modified: maliciousNote.modified,
+      content: xss(maliciousNote.content),
+      folderid: maliciousNote.folderid.toString(),
+      })    
 
     const maliciousNote = {
       "id": "911",
@@ -75,12 +73,11 @@ function makeNotesArray() {
       "folderid": "1"
     }
 
+    return (
+     serializeNote(maliciousNote),
+     expectedNote
+    )
 
-
-    return {
-      maliciousNote,
-      expectedNote,
-    }
   }
 
   module.exports = { 
