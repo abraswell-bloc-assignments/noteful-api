@@ -72,6 +72,7 @@ notesRouter
       })
       .catch(next)
   })
+  // eslint-disable-next-line no-unused-vars
   .get((req, res, next) => {
     res.json(serializeNote(res.note))
   })
@@ -80,6 +81,7 @@ notesRouter
       req.app.get('db'),
       req.params.note_id
     )
+      // eslint-disable-next-line no-unused-vars
       .then(numRowsAffected => {
         res.status(204).end()
       })
@@ -105,28 +107,6 @@ notesRouter
       })
       .catch(next)
   })
-  .patch(jsonParser, (req, res, next) => {
-    
-    const { name, content, folderid } = req.body
-    const noteToUpdate = { name, content, folderid }
 
-    const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length
-    if (numberOfValues === 0)
-      return res.status(400).json({
-        error: {
-          message: `Request body must contain either 'name', 'content', or 'folderid'`
-        }
-      })
-
-    NotesService.updateNote(
-      req.app.get('db'),
-      req.params.note_id,
-      noteToUpdate
-    )
-      .then(numRowsAffected => {
-        res.status(204).end()
-      })
-      .catch(next)
-  })
   
 module.exports = notesRouter

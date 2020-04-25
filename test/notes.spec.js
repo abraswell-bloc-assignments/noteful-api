@@ -1,10 +1,9 @@
 /* eslint-disable no-undef */
-
 const knex = require('knex')
 const app = require('../src/app')
 const {makeFoldersArray} = require('./folders.fixtures')
 const {makeNotesArray} = require('./notes.fixtures')
-// const {makeMaliciousNote} = require('./notes.fixtures')
+const {makeMaliciousNote} = require('./notes.fixtures')
 
 
 describe('Notes Endpoints', function(){
@@ -55,39 +54,38 @@ describe('Notes Endpoints', function(){
             })
         })
 
-        // context(`Given an XSS attack note`, () => {
-        //     const testFolders = makeFoldersArray()
-        //     const testNotes = makeNotesArray()
-        //     const { maliciousNote, expectedNote } = makeMaliciousNote()
+        context(`Given an XSS attack note`, () => {
+            const testFolders = makeFoldersArray()
+            const { maliciousNote, expectedNote } = makeMaliciousNote()
       
-        //     beforeEach('insert malicious note', () => {
-        //         return db
-        //         .into('folders')
-        //         .insert(testFolders)
-        //         .then(() => {
-        //             return db
-        //               .into('notes')
-        //               .insert([maliciousNote])
-        //         })
-        //     })
+            beforeEach('insert malicious note', () => {
+                return db
+                .into('folders')
+                .insert(testFolders)
+                .then(() => {
+                    return db
+                      .into('notes')
+                      .insert([maliciousNote])
+                })
+            })
       
-        //     it('removes XSS attack content', () => {
-        //       return supertest(app)
-        //         .get(`/api/notes`)
-        //         .expect(200)
-        //         .expect(res => {
-        //           expect(res.body[0].name).to.eql(expectedNote.name)
-        //           expect(res.body[0].content).to.eql(expectedNote.content)
-        //         })
-        //     })
-        // })
+            it('removes XSS attack content', () => {
+              return supertest(app)
+                .get(`/api/notes`)
+                .expect(200)
+                .expect(res => {
+                  expect(res.body[0].name).to.eql(expectedNote.name)
+                  expect(res.body[0].content).to.eql(expectedNote.content)
+                })
+            })
+        })
 
     })
 
     describe(`GET /api/notes/:noteId`, () => {
         context(`Given no notes`, () => {
             it(`responds with 404`, () => {
-                const NoteId = 123456
+                const NoteId = "123456"
                 return supertest(app)
                     .get(`/api/notes/${NoteId}`)
                     .expect(404, {error: {message:`Note doesn't exist`} })
@@ -118,37 +116,37 @@ describe('Notes Endpoints', function(){
                 })
             })
 
-        // context(`Given an XSS attack folder`, () => {
-        //     const testFolders = makeFoldersArray()
-        //     const testNotes = makeNotesArray()
-        //     const { maliciousNote, expectedNote } = makeMaliciousNote()
+        context(`Given an XSS attack note`, () => {
+            const testFolders = makeFoldersArray()
+            const testNotes = makeNotesArray()
+            const { maliciousNote, expectedNote } = makeMaliciousNote()
       
-        //     beforeEach('insert malicious note', () => {
-        //         return db
-        //         .into('folders')
-        //         .insert(testFolders)
-        //         .then(() => {
-        //           return db
-        //             .into('notes')
-        //             .insert(testNotes)
-        //         })
-        //         .then(() => {
-        //             return db
-        //               .into('notes')
-        //               .insert([maliciousNote])
-        //           })
-        //     })
+            beforeEach('insert malicious note', () => {
+                return db
+                .into('folders')
+                .insert(testFolders)
+                .then(() => {
+                  return db
+                    .into('notes')
+                    .insert(testNotes)
+                })
+                .then(() => {
+                    return db
+                      .into('notes')
+                      .insert([maliciousNote])
+                  })
+            })
 
-        //     it('removes XSS attack content', () => {
-        //       return supertest(app)
-        //         .get(`/api/notes/${maliciousNote.id}`)
-        //         .expect(200)
-        //         .expect(res => {
-        //           expect(res.body.name).to.eql(expectedNote.name)
-        //           expect(res.body.content).to.eql(expectedNote.content)
-        //         })
-        //     })
-        // })    
+            it('removes XSS attack content', () => {
+              return supertest(app)
+                .get(`/api/notes/${maliciousNote.id}`)
+                .expect(200)
+                .expect(res => {
+                  expect(res.body.name).to.eql(expectedNote.name)
+                  expect(res.body.content).to.eql(expectedNote.content)
+                })
+            })
+        })    
     })
 
     describe(`POST /api/notes/add-note`, () => {
@@ -156,9 +154,11 @@ describe('Notes Endpoints', function(){
         it(`creates a note, responding with 201 and the new note`, function() {
             this.retries(3)
             const newNote = {
-                'name': 'Test new note',
-                'content': 'The contents of newNote',
-                'folderid': '1'
+                "id": "808",
+                "name": "Test new note",
+                "modified": "2018-08-15T23:00:00.000Z",
+                "content": "The contents of newNote",
+                "folderid": "1"
             }
             return supertest(app)
             .post('/api/notes/add-note')
@@ -166,10 +166,11 @@ describe('Notes Endpoints', function(){
             .expect(201)
             .expect(res => {
                 expect(res.body.name).to.eql(newNote.name)
-                // expect(res.body.content).to.eql(newNote.content)
+                expect(res.body.content).to.eql(newNote.content)
                 expect(res.body).to.have.property('id')
+                expect(res.body).to.have.property('modified')
                 expect(res.headers.location).to.eql(`/api/notes/add-note/${res.body.id}`)
-                // expect(res.body).to.have.property('folderid')
+                expect(res.body).to.have.property('folderid')
             })
             .then(postRes =>
                 supertest(app)
@@ -178,13 +179,13 @@ describe('Notes Endpoints', function(){
             )
         })
 
-        const requiredFields = [ 'name', 'content', 'folderid' ]
+        const requiredFields = [ "name", "content", "folderid" ]
 
         requiredFields.forEach(field => {
             const newNote = {
-                'name': 'Test new note',
-                'content': 'The contents of newNote',
-                'folderid': '1'
+                "name": "Test new note",
+                "content": "The contents of newNote",
+                "folderid": "1"
             }
 
             it(`responds with 400 and an error message when the '${field}' is missing`, () => {
@@ -199,23 +200,23 @@ describe('Notes Endpoints', function(){
             })
         })
         
-            // it('removes XSS attack content from response', () => {
-            //     const { maliciousNote, expectedNote } = makeMaliciousNote()
-            //     return supertest(app)
-            //     .post(`/api/notes/add-note`)
-            //     .send(maliciousNote)
-            //     .expect(201)
-            //     .expect(res => {
-            //         expect(res.body.name).to.eql(expectedFolder.name)
-            //         expect(res.body.content).to.eql(expectedNote.content)
-            //     })
-            // })
+            it('removes XSS attack content from response', () => {
+                const { maliciousNote, expectedNote } = makeMaliciousNote()
+                return supertest(app)
+                .post(`/api/notes/add-note`)
+                .send(maliciousNote)
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.name).to.eql(expectedFolder.name)
+                    expect(res.body.content).to.eql(expectedNote.content)
+                })
+            })
     })
 
     describe(`DELETE /api/folders/:folderid`, () => {
        context(`Given no folders`, () => {
             it(`responds with 404`, () => {
-            const folderid = 123456
+            const folderid = 1234
             return supertest(app)
                 .delete(`/api/folders/${folderid}`)
                 .expect(404, { error: { message: `Folder doesn't exist` } })
@@ -223,7 +224,7 @@ describe('Notes Endpoints', function(){
         })
         
         
-        context('Given there are folders in the database', () => {
+        context('Given there are notess in the database', () => {
             const testNotes = makeNotesArray()
             const testFolders = makeFoldersArray()
         
@@ -253,7 +254,6 @@ describe('Notes Endpoints', function(){
           })
         })
     })
-
     
 })
 
