@@ -1,10 +1,9 @@
 /* eslint-disable no-undef */
+
 const knex = require('knex')
 const app = require('../src/app')
 const {makeFoldersArray} = require('./folders.fixtures')
 const {makeNotesArray} = require('./notes.fixtures')
-const {makeMaliciousNote} = require('./notes.fixtures')
-
 
 describe('Notes Endpoints', function(){
     let db
@@ -56,7 +55,27 @@ describe('Notes Endpoints', function(){
 
         context(`Given an XSS attack note`, () => {
             const testFolders = makeFoldersArray()
-            const { maliciousNote, expectedNote } = makeMaliciousNote()
+
+            const maliciousNote = 
+
+                {
+                    "id": "911",
+                    "name": "Naughty naughty very naughty <script>alert('xss');</script>",
+                    "modified": "2018-08-20T23:00:00.000Z",
+                    "content": 'Fixture Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+                    "folderid": "1"
+                }
+
+
+            const expectedNote = 
+              
+            {
+                "id": "911",
+                "name": "Naughty naughty very naughty &lt;script&gt;alert('xss');&lt;/script&gt;",
+                "modified": "2018-08-20T23:00:00.000Z",
+                "content": 'Fixture Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+                "folderid": "1"
+            } 
       
             beforeEach('insert malicious note', () => {
                 return db
@@ -65,10 +84,10 @@ describe('Notes Endpoints', function(){
                 .then(() => {
                     return db
                       .into('notes')
-                      .insert([maliciousNote])
+                      .insert(maliciousNote)
                 })
+                console.log(res)
             })
-      
             it('removes XSS attack content', () => {
               return supertest(app)
                 .get(`/api/notes`)
@@ -117,33 +136,46 @@ describe('Notes Endpoints', function(){
             })
 
         context(`Given an XSS attack note`, () => {
-            const testFolders = makeFoldersArray()
-            const testNotes = makeNotesArray()
-            const { maliciousNote, expectedNote } = makeMaliciousNote()
+            const testFolders = makeFoldersArray()     
+
+            const maliciousNote = 
+                {
+                    "id": "911",
+                    "name": "Naughty naughty very naughty <script>alert('xss');</script>",
+                    "modified": "2018-08-20T23:00:00.000Z",
+                    "content": 'Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+                    "folderid": "1"
+                }
+
+            const expectedNote = 
+              
+                {
+                    "id": "911",
+                    "name": "Naughty naughty very naughty &lt;script&gt;alert('xss');&lt;/script&gt;",
+                    "modified": "2018-08-20T23:00:00.000Z",
+                    "content": 'Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+                    "folderid": "1"
+                }  
+             
       
             beforeEach('insert malicious note', () => {
                 return db
                 .into('folders')
                 .insert(testFolders)
                 .then(() => {
-                  return db
-                    .into('notes')
-                    .insert(testNotes)
-                })
-                .then(() => {
                     return db
                       .into('notes')
-                      .insert([maliciousNote])
-                  })
+                      .insert(maliciousNote)
+                })
             })
 
             it('removes XSS attack content', () => {
               return supertest(app)
-                .get(`/api/notes/${maliciousNote.id}`)
+                .get('/api/notes/911')
                 .expect(200)
                 .expect(res => {
-                  expect(res.body.name).to.equal(expectedNote.name)
-                  expect(res.body.content).to.equal(expectedNote.content)
+                    expect(res.body.name).to.equal(expectedNote.name)
+                    expect(res.body.content).to.equal(expectedNote.content)
                 })
             })
         })    
@@ -204,18 +236,38 @@ describe('Notes Endpoints', function(){
                 })
             })
         })
-        
+
             it('removes XSS attack content from response', () => {
-                const { maliciousNote, expectedNote } = makeMaliciousNote()
+  
+                const maliciousNote = {
+                    "name": "Naughty naughty very naughty <script>alert('xss');</script>",
+                    "content": "Bad image <img src='https://url.to.file.which/does-not.exist' onerror='alert(document.cookie);'>. But not <strong>all</strong> bad.",
+                    "folderid": "1"
+                }
+                    
+                const expectedNote = 
+            
+                {
+                    "id": "911",
+                    "name": "Naughty naughty very naughty &lt;script&gt;alert('xss');&lt;/script&gt;",
+                    "modified": "2018-08-20T23:00:00.000Z",
+                    "content": 'Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+                    "folderid": "1"
+                }  
+         
                 return supertest(app)
                 .post(`/api/notes/add-note`)
                 .send(maliciousNote)
                 .expect(201)
                 .expect(res => {
-                    expect(res.body.name).to.equal(expectedNote.name)
-                    expect(res.body.content).to.equal(expectedNote.content)
+                  expect(res.body.name).to.equal(expectedNote.name)
+                  expect(res.body.content).to.equal(expectedNote.content)
                 })
             })
+        
+
+        
+
     })
 
     describe(`DELETE /api/notes/:noteid`, () => {
@@ -226,6 +278,7 @@ describe('Notes Endpoints', function(){
                 .delete(`/api/notes/${noteid}`)
                 .expect(404, { error: { message: `Note doesn't exist` } })
             })
+           
         })
         
         

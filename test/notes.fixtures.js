@@ -1,5 +1,3 @@
-const xss = require('xss')
-
 
 function makeNotesArray() {
     return [
@@ -48,39 +46,7 @@ function makeNotesArray() {
     ]    
   }
 
-  function makeMaliciousNote() {
-
-    const serializeNote = (maliciousNote) => ({
-      id: maliciousNote.id.toString(),
-      name: xss(maliciousNote.name),
-      modified: maliciousNote.modified,
-      content: xss(maliciousNote.content),
-      folderid: maliciousNote.folderid.toString(),
-      })    
-
-    const maliciousNote = {
-      "id": "911",
-      "name": 'Naughty naughty very naughty <script>alert("xss");</script>',
-      "modified": "2018-08-20T23:00:00.000Z",
-      "content": `Fixture Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
-      "folderid": "1"
-    }
-    const expectedNote = {
-      "id": "912",
-      "name": 'Naughty naughty very naughty <script>alert("xss");</script>',
-      "modified": "2018-08-20T23:00:00.000Z",
-      "content": `Fixture Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`,
-      "folderid": "1"
-    }
-
-    return (
-     serializeNote(maliciousNote),
-     expectedNote
-    )
-
-  }
 
   module.exports = { 
       makeNotesArray,
-      makeMaliciousNote,
  }
